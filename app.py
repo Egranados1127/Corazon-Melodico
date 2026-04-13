@@ -139,12 +139,16 @@ if mesa_param and url_bar_id:
                     try:
                         from sklearn.feature_extraction.text import TfidfVectorizer
                         from sklearn.metrics.pairwise import cosine_similarity
-                        vectorizer = TfidfVectorizer()
+                        
+                        # Strip accents to ensure "corazón" matches "corazon", etc.
+                        vectorizer = TfidfVectorizer(strip_accents='unicode')
                         tfidf_matrix = vectorizer.fit_transform(valid_lyrics_df['lyrics'])
                         query_vec = vectorizer.transform([search])
                         sims = cosine_similarity(query_vec, tfidf_matrix).flatten()
                         top_indices = sims.argsort()[-5:][::-1]
-                        found_semantic = [valid_lyrics_df.iloc[idx] for idx in top_indices if sims[idx] > 0.03]
+                        
+                        # Threshold bajado a 0.005 porque un query de 3 palabras cantadas contra una canción de 500 palabras da un cosine_similarity muy bajo.
+                        found_semantic = [valid_lyrics_df.iloc[idx] for idx in top_indices if sims[idx] > 0.005]
                         if found_semantic:
                             semantic_matches = pd.DataFrame(found_semantic)
                     except:
