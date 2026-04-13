@@ -149,13 +149,20 @@ if mesa_param and url_bar_id:
                     
                     if search_lower in lyrics_lower:
                         idx = lyrics_lower.find(search_lower)
+                    else:
+                        # Fallback a buscar palabras clave por separado si hay signos de puntuación o saltos de línea estorbando
+                        idx = -1
+                        for w in [word for word in search_lower.split() if len(word) >= 4]:
+                            idx = lyrics_lower.find(w)
+                            if idx != -1: break
+                            
+                    if idx != -1:
                         start = max(0, idx - 40)
                         end = min(len(row['lyrics']), idx + len(st.session_state.voice_memory) + 40)
                         texto_cortado = row['lyrics'][start:end].replace('\n', ' / ')
                         snippet_html = f"<br><span style='color:inherit; font-size:0.85em; font-style:italic; opacity:0.8;'>«...{texto_cortado}...»</span>"
                     else:
-                        # Como la IA Vectorial lo encontró por similitud (sin coincidencia literal exacta)
-                        # Mostramos obligatoriamente las primeras líneas de la canción
+                        # Como la IA Vectorial lo encontró por similitud abstracta total
                         texto_cortado = row['lyrics'][:80].replace('\n', ' / ')
                         snippet_html = f"<br><span style='color:inherit; font-size:0.85em; font-style:italic; opacity:0.8;'>«{texto_cortado}...»</span>"
 
