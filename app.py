@@ -106,12 +106,12 @@ if mesa_param and url_bar_id:
                 st.session_state.stt_key += "X"
 
         # Zona Tradicional (Lado a lado)
-        col_search, col_artist = st.columns(2)
-        with col_search:
-            search_text = st.text_input("🔍 Nombre o Disco...", key="text_search", on_change=clear_voice, label_visibility="collapsed", placeholder="🔍 Título o disco...")
+        col_artist, col_search = st.columns(2)
         with col_artist:
             artistas = ["Explorar Artista..."] + sorted(songs_df['artist'].unique().tolist())
             selected_artist = st.selectbox("🎤 Filtrar Artista:", artistas, key="artist_filter", on_change=clear_voice, label_visibility="collapsed")
+        with col_search:
+            search_text = st.text_input("🔍 Nombre o Disco...", key="text_search", on_change=clear_voice, label_visibility="collapsed", placeholder="🔍 Título o disco...")
             
         search = st.session_state.voice_memory if st.session_state.voice_memory else search_text
         artist_chosen = selected_artist != "Explorar Artista..."
