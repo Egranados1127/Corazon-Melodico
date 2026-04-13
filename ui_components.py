@@ -5,7 +5,7 @@ def apply_custom_css(primary="#4A0E0E", secondary="#D4AF37", logo_url=None):
     if logo_url:
         bg_css = f"""
             background-color: #121212;
-            background-image: radial-gradient(circle at center, rgba(18, 18, 18, 0.90) 0%, rgba(18, 18, 18, 0.98) 100%), url('{logo_url}');
+            background-image: radial-gradient(circle at center, rgba(18, 18, 18, 0.75) 0%, rgba(18, 18, 18, 0.92) 100%), url('{logo_url}');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
@@ -14,6 +14,13 @@ def apply_custom_css(primary="#4A0E0E", secondary="#D4AF37", logo_url=None):
         
     st.markdown(f"""
         <style>
+        .block-container {{
+            padding-top: 2rem !important;
+            padding-left: 0.8rem !important;
+            padding-right: 0.8rem !important;
+            padding-bottom: 2rem !important;
+        }}
+        
         @keyframes magicPulse {{
             0% {{ transform: scale(1); text-shadow: 0 0 5px {secondary}; }}
             50% {{ transform: scale(1.05); text-shadow: 0 0 15px {secondary}, 0 0 25px #ffffff; }}
