@@ -107,27 +107,32 @@ def get_played_history(bar_id, limit=20):
     return pd.DataFrame(records)
 
 def get_queue(bar_id):
-    res = supabase.table('requests_saas').select('*, songs_saas(*)').eq('bar_id', bar_id).eq('status', 'pending').execute()
+    res = supabase.table('requests_saas').select('*').eq('bar_id', bar_id).eq('status', 'pending').execute()
     data = res.data
     if not data:
         return pd.DataFrame()
         
+    song_ids = list(set([r['song_id'] for r in data]))
+    songs_res = supabase.table('songs_saas').select('*').in_('id', song_ids).execute()
+    songs_dict = {s['id']: s for s in songs_res.data}
+        
     records = []
     for row in data:
-        s = row.get('songs_saas')
+        s = songs_dict.get(row['song_id'])
         if s:
             records.append({
-                'song_id': row['song_id'],
+                'song_id': s['id'],
                 'title': s['title'],
                 'artist': s['artist'],
-                'lyrics': s.get('lyrics', ''),
+                'lyrics': s['lyrics'],
                 'table_id': row['table_id'],
                 'requested_at': row['requested_at']
             })
             
-    if not records: return pd.DataFrame()
+    if not records:
+        return pd.DataFrame()
+        
     df = pd.DataFrame(records)
-    
     grouped = df.groupby(['song_id', 'title', 'artist', 'lyrics']).agg(
         total_requests=('table_id', 'count'),
         requesting_tables=('table_id', lambda x: ','.join(x.unique())),
@@ -139,7 +144,8 @@ def get_queue(bar_id):
     grouped['minutes_waiting'] = (now - grouped['oldest_request_time']).dt.total_seconds() / 60.0
     grouped['minutes_waiting'] = grouped['minutes_waiting'].clip(lower=0) 
     grouped['score'] = (grouped['total_requests'] * 10) + (np.log1p(grouped['minutes_waiting']) * 5)
-    return grouped.sort_values(by='score', ascending=False).reset_index(drop=True)
+    
+    return grouped.sort_values(by='score', ascending=False)
 
 def mark_song_played(bar_id, song_id):
     # in_ is correct syntax for python client
