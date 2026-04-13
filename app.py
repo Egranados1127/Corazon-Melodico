@@ -221,7 +221,7 @@ if mesa_param and url_bar_id:
 
     st.divider()
     with st.expander("✅ Historial de la Mesa (Ya Sonaron)"):
-        h_df = get_played_history(url_bar_id, limit=30)
+        h_df = get_played_history(url_bar_id, table_id=mesa_id, limit=30)
         if h_df.empty:
             st.info("La noche apenas comienza.")
         else:
