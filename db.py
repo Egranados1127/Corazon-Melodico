@@ -132,10 +132,13 @@ def get_queue(bar_id):
         return pd.DataFrame()
         
     df = pd.DataFrame(records)
-    grouped = df.groupby(['song_id', 'title', 'artist', 'lyrics']).agg(
+    grouped = df.copy()
+    grouped.fillna({'lyrics': ''}, inplace=True)
+    grouped = grouped.groupby(['song_id', 'title', 'artist']).agg(
         total_requests=('table_id', 'count'),
         requesting_tables=('table_id', lambda x: ','.join(x.unique())),
-        oldest_request_time=('requested_at', 'min')
+        oldest_request_time=('requested_at', 'min'),
+        lyrics=('lyrics', 'first')
     ).reset_index()
     
     now = datetime.now(timezone.utc).replace(tzinfo=None)
