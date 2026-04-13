@@ -99,26 +99,42 @@ if mesa_param and url_bar_id:
         
         st.markdown("<p style='text-align:center; color:#A0A0A0; font-size:0.85em; margin-bottom: 2px;'>o usa el catálogo tradicional:</p>", unsafe_allow_html=True)
         
+        # Función para limpiar la búsqueda de voz si el usuario usa la barra de texto o artista
+        def clear_voice():
+            st.session_state.voice_memory = ""
+            if "stt_key" in st.session_state:
+                st.session_state.stt_key += "X"
+
         # Zona Tradicional (Lado a lado)
         col_search, col_artist = st.columns(2)
         with col_search:
-            search_text = st.text_input("🔍 Nombre o Disco...", label_visibility="collapsed", placeholder="🔍 Título o disco...")
+            search_text = st.text_input("🔍 Nombre o Disco...", key="text_search", on_change=clear_voice, label_visibility="collapsed", placeholder="🔍 Título o disco...")
         with col_artist:
             artistas = ["Explorar Artista..."] + sorted(songs_df['artist'].unique().tolist())
-            selected_artist = st.selectbox("🎤 Filtrar Artista:", artistas, label_visibility="collapsed")
+            selected_artist = st.selectbox("🎤 Filtrar Artista:", artistas, key="artist_filter", on_change=clear_voice, label_visibility="collapsed")
             
         search = st.session_state.voice_memory if st.session_state.voice_memory else search_text
+        artist_chosen = selected_artist != "Explorar Artista..."
             
         if search:
-            exact_matches = songs_df[
-                songs_df['title'].str.contains(search, case=False, na=False) | 
-                songs_df['artist'].str.contains(search, case=False, na=False)
-            ]
+            if artist_chosen:
+                exact_matches = songs_df[
+                    (songs_df['artist'] == selected_artist) &
+                    (songs_df['title'].str.contains(search, case=False, na=False) | songs_df['artist'].str.contains(search, case=False, na=False))
+                ]
+            else:
+                exact_matches = songs_df[
+                    songs_df['title'].str.contains(search, case=False, na=False) | 
+                    songs_df['artist'].str.contains(search, case=False, na=False)
+                ]
             
             semantic_matches = pd.DataFrame()
             # La Inteligencia Semántica SOLO se activa al cantar (Micrófono)
             if st.session_state.voice_memory and 'lyrics' in songs_df.columns:
                 valid_lyrics_df = songs_df.dropna(subset=['lyrics'])
+                if artist_chosen:
+                    valid_lyrics_df = valid_lyrics_df[valid_lyrics_df['artist'] == selected_artist]
+                    
                 if not valid_lyrics_df.empty and len(search) >= 4:
                     try:
                         from sklearn.feature_extraction.text import TfidfVectorizer
@@ -135,8 +151,8 @@ if mesa_param and url_bar_id:
                         pass
             
             filtered_df = pd.concat([exact_matches, semantic_matches]).drop_duplicates(subset=['id']).head(15)
-        elif selected_artist != "Elige un Artista...":
-            filtered_df = songs_df[songs_df['artist'] == selected_artist]
+        elif artist_chosen:
+            filtered_df = songs_df[songs_df['artist'] == selected_artist].head(30)
         else:
             filtered_df = pd.DataFrame()
             
