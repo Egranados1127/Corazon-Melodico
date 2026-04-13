@@ -118,8 +118,8 @@ if mesa_param and url_bar_id:
             
         if search:
             exact_matches = songs_df[
-                songs_df['title'].str.contains(search, case=False) | 
-                songs_df['artist'].str.contains(search, case=False)
+                songs_df['title'].str.contains(search, case=False, na=False) | 
+                songs_df['artist'].str.contains(search, case=False, na=False)
             ]
             
             semantic_matches = pd.DataFrame()
