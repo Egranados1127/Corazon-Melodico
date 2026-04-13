@@ -51,14 +51,6 @@ if mesa_param and url_bar_id:
 
     active_requests = get_active_requests_count(url_bar_id, mesa_id)
     
-    alerts_df = get_table_alerts(url_bar_id, mesa_id)
-    if not alerts_df.empty:
-        for _, alert in alerts_df.iterrows():
-            if alert['status'] == 'pending_download':
-                st.warning(f"📻 El DJ está buscando o descargando **{alert['title']}** ({alert['artist']}) para ti. ¡No gasta tu cupo!")
-            elif alert['status'] == 'rejected':
-                st.error(f"❌ **{alert['title']}** ({alert['artist']}) fue eliminada por el DJ (Música fuera de contexto para este negocio). Se te devolvió tu cupo.")
-    
     songs_df = get_songs(url_bar_id)
     if songs_df.empty:
         st.info("El DJ de este bar aún no ha subido el catálogo.")
@@ -211,6 +203,15 @@ if mesa_param and url_bar_id:
                 </div>
                 """, unsafe_allow_html=True)
 
+    st.markdown("<br>", unsafe_allow_html=True)
+    alerts_df = get_table_alerts(url_bar_id, mesa_id)
+    if not alerts_df.empty:
+        for _, alert in alerts_df.iterrows():
+            if alert['status'] == 'pending_download':
+                st.warning(f"📻 El DJ está buscando/descargando **{alert['title']}** ({alert['artist']}) para ti. ¡No gasta tu cupo!")
+            elif alert['status'] == 'rejected':
+                st.error(f"❌ **{alert['title']}** ({alert['artist']}) fue eliminada por el DJ (Música fuera de contexto). Se te devolvió tu cupo.")
+
 # =======================================================
 # 2. PORTAL CERRADO PARA DJ (LOGIN AL UNIVERSO)
 # =======================================================
@@ -264,45 +265,7 @@ else:
                 logout()
                 st.rerun()
 
-        st.success(f"Estás dentro de tu propio universo de datos. Tus canciones y pedidos son 100% privados a tu negocio.")
-        st.info(f"👉 **Enlace para tus clientes (Imprime el QR):** `URL/?bar={bar_id}&mesa=X`")
-        
-        if st.button("Simulador de Escaneo de tu QR por un local (Mesa 10)"):
-            st.query_params["bar"] = bar_id
-            st.query_params["mesa"] = "10"
-            st.rerun()
-
-        st.divider()
-        
-        with st.expander("⚙️ Ajustes de Identidad Visual (Tu Marca)"):
-            st.markdown("<p style='color:#bbb;'>Personaliza los colores y el Logo de tu Bar para que tus clientes se sientan en casa al escanear.</p>", unsafe_allow_html=True)
-            col_cc1, col_cc2 = st.columns(2)
-            with col_cc1:
-                new_primary = st.color_picker("Color Primario (Fondos)", primary_c)
-            with col_cc2:
-                new_secondary = st.color_picker("Color Secundario (Brillo/Neón)", secondary_c)
-            
-            uploaded_logo = st.file_uploader("Sube o arrastra el Logo de tu Bar", type=["png", "jpg", "jpeg", "webp"])
-            
-            if st.button("Guardar Identidad Visible"):
-                final_logo = logo_url
-                if uploaded_logo is not None:
-                    import base64
-                    encoded = base64.b64encode(uploaded_logo.read()).decode()
-                    mime_type = uploaded_logo.type
-                    final_logo = f"data:{mime_type};base64,{encoded}"
-                
-                update_bar_identity(bar_id, new_primary, new_secondary, final_logo)
-                
-                st.session_state.admin_primary = new_primary
-                st.session_state.admin_secondary = new_secondary
-                st.session_state.admin_logo_url = final_logo
-                
-                st.success("¡Identidad visual aplicada inmediatamente!")
-                time.sleep(1)
-                st.rerun()
-
-        st.divider()
+        # Settings and Simulator moved to the bottom
         
         # TABLERO DE MEMORIA (TOP DISCOS)
         st.subheader("🏆 Histórico Mensual: El Playlist de Oro")
@@ -334,7 +297,14 @@ else:
             st.info("Aún no tienes historial suficiente para calcular los Top.")
             
         st.divider()
-        st.subheader("Cola de Peticiones en Vivo")
+        col_q1, col_q2 = st.columns([3, 1])
+        with col_q1:
+            st.subheader("Cola de Peticiones en Vivo")
+        with col_q2:
+            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+            if st.button("🔄 Actualizar", use_container_width=True):
+                st.rerun()
+                
         queue_df = get_queue(bar_id)
         if queue_df.empty:
             st.markdown("La cola del DJ de tu bar está vacía por ahora.")
@@ -379,3 +349,44 @@ else:
                     if st.button(f"✅ Ya la descargué (Marcar Sonada)", key=f"res_{row['song_id']}", use_container_width=True):
                         mark_song_played(bar_id, row['song_id'])
                         st.rerun()
+
+        st.divider()
+        st.subheader("🛠️ Administración del Bar")
+        
+        st.success(f"Estás dentro de tu propio universo de datos. Tus pedidos son 100% privados a tu negocio.")
+        st.info(f"👉 **Enlace para tus clientes (Imprime el QR):** `URL/?bar={bar_id}&mesa=X`")
+        
+        if st.button("Simulador de Escaneo por un local (Mesa 10)"):
+            st.query_params["bar"] = bar_id
+            st.query_params["mesa"] = "10"
+            st.rerun()
+
+        st.divider()
+        
+        with st.expander("⚙️ Ajustes de Identidad Visual (Tu Marca)"):
+            st.markdown("<p style='color:#bbb;'>Personaliza los colores y el Logo de tu Bar.</p>", unsafe_allow_html=True)
+            col_cc1, col_cc2 = st.columns(2)
+            with col_cc1:
+                new_primary = st.color_picker("Color Primario (Fondos)", primary_c)
+            with col_cc2:
+                new_secondary = st.color_picker("Color Secundario (Brillo/Neón)", secondary_c)
+            
+            uploaded_logo = st.file_uploader("Sube o arrastra el Logo de tu Bar", type=["png", "jpg", "jpeg", "webp"])
+            
+            if st.button("Guardar Identidad Visible"):
+                final_logo = logo_url
+                if uploaded_logo is not None:
+                    import base64
+                    encoded = base64.b64encode(uploaded_logo.read()).decode()
+                    mime_type = uploaded_logo.type
+                    final_logo = f"data:{mime_type};base64,{encoded}"
+                
+                update_bar_identity(bar_id, new_primary, new_secondary, final_logo)
+                
+                st.session_state.admin_primary = new_primary
+                st.session_state.admin_secondary = new_secondary
+                st.session_state.admin_logo_url = final_logo
+                
+                st.success("¡Identidad visual aplicada inmediatamente!")
+                time.sleep(1)
+                st.rerun()
