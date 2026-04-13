@@ -51,11 +51,23 @@ def get_active_requests_count(bar_id, table_id):
     return res.count
 
 def add_request(bar_id, song_id, table_id):
-    supabase.table('requests_saas').insert({
-        'bar_id': bar_id,
-        'song_id': song_id,
-        'table_id': table_id
-    }).execute()
+    try:
+        # Prevenir colisiones de IDs (Sequences fallando en Postgres tras migrar SQLite via REST)
+        res = supabase.table('requests_saas').select('id').order('id', desc=True).limit(1).execute()
+        next_id = res.data[0]['id'] + 1 if res.data else 1
+        
+        supabase.table('requests_saas').insert({
+            'id': next_id,
+            'bar_id': bar_id,
+            'song_id': int(song_id),
+            'table_id': table_id
+        }).execute()
+    except Exception:
+        supabase.table('requests_saas').insert({
+            'bar_id': bar_id,
+            'song_id': int(song_id),
+            'table_id': table_id
+        }).execute()
 
 def get_top_songs(bar_id, limit=4):
     res = supabase.table('requests_saas').select('*, songs_saas(title, artist)').eq('bar_id', bar_id).execute()
