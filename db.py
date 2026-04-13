@@ -43,8 +43,17 @@ def get_bar_info(bar_id):
     return None
 
 def get_songs(bar_id):
-    res = supabase.table('songs_saas').select('*').eq('bar_id', bar_id).eq('is_banned', 0).order('title').execute()
-    return pd.DataFrame(res.data) if res.data else pd.DataFrame(columns=['id', 'bar_id', 'title', 'artist', 'album', 'genre', 'lyrics', 'is_banned'])
+    all_data = []
+    start = 0
+    while True:
+        res = supabase.table('songs_saas').select('*').eq('bar_id', bar_id).eq('is_banned', 0).order('title').range(start, start + 999).execute()
+        if not res.data:
+            break
+        all_data.extend(res.data)
+        if len(res.data) < 1000:
+            break
+        start += 1000
+    return pd.DataFrame(all_data) if all_data else pd.DataFrame(columns=['id', 'bar_id', 'title', 'artist', 'album', 'genre', 'lyrics', 'is_banned'])
 
 def get_active_requests_count(bar_id, table_id):
     res = supabase.table('requests_saas').select('id', count='exact').eq('bar_id', bar_id).eq('table_id', table_id).eq('status', 'pending').execute()
