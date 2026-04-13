@@ -36,10 +36,16 @@ def apply_custom_css(primary="#4A0E0E", secondary="#D4AF37", logo_url=None):
             animation: magicPulse 2s infinite;
         }}
         
+        html, body {{
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+        }}
+        
         iframe {{
-            transform: scale(1.6) !important;
-            transform-origin: top center !important;
             margin-bottom: 25px !important;
+            max-width: 100% !important;
+            display: flex;
+            justify-content: center;
         }}
 
         .stApp {{
