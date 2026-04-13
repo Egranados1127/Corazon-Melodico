@@ -97,8 +97,11 @@ def get_top_songs(bar_id, limit=4):
     grouped = df.groupby(['title', 'artist']).size().reset_index(name='total_requests')
     return grouped.sort_values(by='total_requests', ascending=False).head(limit)
 
-def get_played_history(bar_id, limit=20):
-    res = supabase.table('requests_saas').select('*, songs_saas(title, artist)').eq('bar_id', bar_id).eq('status', 'played').order('requested_at', desc=True).limit(limit).execute()
+def get_played_history(bar_id, table_id=None, limit=20):
+    query = supabase.table('requests_saas').select('*, songs_saas(title, artist)').eq('bar_id', bar_id).eq('status', 'played')
+    if table_id:
+        query = query.eq('table_id', table_id)
+    res = query.order('requested_at', desc=True).limit(limit).execute()
     data = res.data
     if not data:
         return pd.DataFrame(columns=['title', 'artist', 'table_id', 'requested_at'])
