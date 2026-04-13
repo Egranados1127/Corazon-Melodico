@@ -123,7 +123,7 @@ def get_queue(bar_id):
     ).reset_index()
     
     now = datetime.now(timezone.utc).replace(tzinfo=None)
-    grouped['oldest_request_time'] = pd.to_datetime(grouped['oldest_request_time']).dt.tz_localize(None)
+    grouped['oldest_request_time'] = pd.to_datetime(grouped['oldest_request_time'], errors='coerce', utc=True).dt.tz_localize(None)
     grouped['minutes_waiting'] = (now - grouped['oldest_request_time']).dt.total_seconds() / 60.0
     grouped['minutes_waiting'] = grouped['minutes_waiting'].clip(lower=0) 
     grouped['score'] = (grouped['total_requests'] * 10) + (np.log1p(grouped['minutes_waiting']) * 5)
