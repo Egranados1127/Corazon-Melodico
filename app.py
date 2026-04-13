@@ -129,8 +129,9 @@ if mesa_param and url_bar_id:
                 ]
             
             semantic_matches = pd.DataFrame()
-            # La Inteligencia Semántica SOLO se activa al cantar (Micrófono)
-            if st.session_state.voice_memory and 'lyrics' in songs_df.columns:
+            # La Inteligencia Semántica se activa al cantar (voz) O al escribir frases largas en el buscador
+            is_semantic_enabled = bool(st.session_state.voice_memory) or len(search) > 15
+            if is_semantic_enabled and 'lyrics' in songs_df.columns:
                 valid_lyrics_df = songs_df.dropna(subset=['lyrics'])
                 if artist_chosen:
                     valid_lyrics_df = valid_lyrics_df[valid_lyrics_df['artist'] == selected_artist]
