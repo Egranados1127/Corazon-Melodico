@@ -11,9 +11,17 @@ def fetch_and_save_lyrics():
     
     print("Conectando a la Bóveda en la Nube (Supabase)...")
     try:
-        # Buscar canciones en la nube que no tienen letra
-        res = supabase.table('songs_saas').select('id, title, artist').is_('lyrics', 'null').execute()
-        canciones = res.data
+        # Paginar la búsqueda para evadir el límite de 1000 de Supabase
+        canciones = []
+        offset = 0
+        while True:
+            res = supabase.table('songs_saas').select('id, title, artist').is_('lyrics', 'null').range(offset, offset + 999).execute()
+            if not res.data:
+                break
+            canciones.extend(res.data)
+            if len(res.data) < 1000:
+                break
+            offset += 1000
     except Exception as e:
         print(f"Error accediendo a Supabase: {str(e)}")
         return
