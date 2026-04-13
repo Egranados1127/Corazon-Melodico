@@ -42,7 +42,7 @@ if mesa_param and url_bar_id:
         else:
             st.title(bar_name)
     with col2:
-        if st.button("⬅️"):
+        if st.button("Salir"):
             st.query_params.clear()
             st.rerun()
 
