@@ -91,6 +91,7 @@ if mesa_param and url_bar_id:
                 st.session_state.voice_memory = text_from_voice
 
             if st.session_state.voice_memory:
+                st.markdown(f"<div style='text-align:center; color:{secondary_c}; font-weight:bold; margin-bottom:10px;'>🎤 Escuché: \"{st.session_state.voice_memory}\"</div>", unsafe_allow_html=True)
                 if st.button("❌ Borrar Búsqueda por Voz", use_container_width=True):
                     st.session_state.voice_memory = ""
                     st.session_state.stt_key += "X"
@@ -160,10 +161,16 @@ if mesa_param and url_bar_id:
                         start = max(0, idx - 40)
                         end = min(len(row['lyrics']), idx + len(st.session_state.voice_memory) + 40)
                         texto_cortado = row['lyrics'][start:end].replace('\n', ' / ')
+                        import re
+                        for w in [word for word in search_lower.split() if len(word) >= 4]:
+                            texto_cortado = re.sub(f'(?i)({re.escape(w)})', f"<b style='color:#FFF; background-color:{secondary_c}; padding:0 3px; border-radius:3px;'>\\1</b>", texto_cortado)
                         snippet_html = f"<br><span style='color:inherit; font-size:0.85em; font-style:italic; opacity:0.8;'>«...{texto_cortado}...»</span>"
                     else:
                         # Como la IA Vectorial lo encontró por similitud abstracta total
                         texto_cortado = row['lyrics'][:80].replace('\n', ' / ')
+                        import re
+                        for w in [word for word in search_lower.split() if len(word) >= 4]:
+                            texto_cortado = re.sub(f'(?i)({re.escape(w)})', f"<b style='color:#FFF; background-color:{secondary_c}; padding:0 3px; border-radius:3px;'>\\1</b>", texto_cortado)
                         snippet_html = f"<br><span style='color:inherit; font-size:0.85em; font-style:italic; opacity:0.8;'>«{texto_cortado}...»</span>"
 
                 cols = st.columns([3, 1])
