@@ -112,7 +112,8 @@ def get_queue(bar_id):
     if not data:
         return pd.DataFrame()
         
-    songs_res = supabase.table('songs_saas').select('*').eq('bar_id', bar_id).execute()
+    song_ids = list(set([r['song_id'] for r in data]))
+    songs_res = supabase.table('songs_saas').select('*').in_('id', song_ids).execute()
     songs_dict = {s['id']: s for s in songs_res.data}
         
     records = []
