@@ -1,0 +1,21 @@
+# Claves y Secretos
+.env
+
+# Entornos Virtuales
+.venv/
+venv/
+ENV/
+env/
+
+# Base de Datos local
+*.sqlite
+*.db
+corazon_melodico.db
+
+# Cachés de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Materiales Generados (QR)
+qrs_impresion_*/
