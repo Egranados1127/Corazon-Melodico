@@ -93,11 +93,25 @@ def apply_custom_css(primary="#4A0E0E", secondary="#D4AF37", logo_url=None):
             box-shadow: 2px 6px 15px {secondary}66 !important;
         }}
 
-        .stTextInput>div>div>input {{
-            background-color: rgba(255, 255, 255, 0.05) !important;
-            color: #E0E0E0 !important;
-            border: 1px solid #777777 !important;
+        .stTextInput>div>div>input, .stSelectbox>div>div>div {{
+            background-color: #1A1A1A !important;
+            color: #FFFFFF !important;
+            border: 1px solid #666666 !important;
             border-radius: 8px;
+            font-weight: 500;
+        }}
+
+        /* Forzar visibilidad extrema de mensajes de alertas (el disco fue rechazado o esperado) */
+        div[data-testid="stAlert"] {{
+            background-color: rgba(20, 20, 20, 0.95) !important;
+            border: 1px solid {secondary} !important;
+            border-radius: 8px;
+            padding: 10px;
+        }}
+        div[data-testid="stAlert"] p, div[data-testid="stAlert"] span {{
+            color: #FFFFFF !important;
+            font-size: 1.05em;
+            font-weight: bold;
         }}
         
         #MainMenu {{visibility: hidden;}}
