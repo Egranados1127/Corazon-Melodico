@@ -164,10 +164,10 @@ if mesa_param and url_bar_id:
         if not filtered_df.empty:
             for _, row in filtered_df.iterrows():
                 snippet_html = ""
-                # Si es búsqueda por voz, obligatoriamente mostramos la estrofa
-                if st.session_state.voice_memory and 'lyrics' in row and pd.notna(row['lyrics']) and row['lyrics']:
+                # Muestra la estrofa si se hizo por voz o inteligencia semántica larga
+                if is_semantic_enabled and 'lyrics' in row and pd.notna(row['lyrics']) and row['lyrics']:
                     lyrics_lower = row['lyrics'].lower()
-                    search_lower = st.session_state.voice_memory.lower()
+                    search_lower = search.lower()
                     
                     if search_lower in lyrics_lower:
                         idx = lyrics_lower.find(search_lower)
