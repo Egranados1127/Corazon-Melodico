@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def apply_custom_css(primary="#4A0E0E", secondary="#D4AF37", logo_url=None):
     bg_css = "background-color: #121212;"
     if logo_url:
@@ -11,8 +12,9 @@ def apply_custom_css(primary="#4A0E0E", secondary="#D4AF37", logo_url=None):
             background-position: center center;
             background-attachment: fixed;
         """
-        
-    st.markdown(f"""
+
+    st.markdown(
+        f"""
         <style>
         .block-container {{
             padding-top: 2rem !important;
@@ -122,4 +124,6 @@ def apply_custom_css(primary="#4A0E0E", secondary="#D4AF37", logo_url=None):
             border-bottom: 1px solid {secondary}4D !important;
         }}
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
