@@ -113,9 +113,14 @@ if __name__ == "__main__":
     print("==================================")
     print("Vamos a generar tus 40 códigos QR listos para imprimir.")
     
-    bar_num = input("Ingresa el ID del bar en tu base de datos (Ej: bar_1): ").strip()
+    bar_num = input("Ingresa el ID corporativo del bar (Ej. '1' o 'bar_1'): ").strip()
     if not bar_num:
+        print("Tratando de generar para testing...")
         bar_num = "bar_1"
+    
+    # Auto-corrección si el usuario olvidó el prefijo oficial de Supabase
+    if not bar_num.startswith("bar_"):
+        bar_num = f"bar_{bar_num}"
         
     dominio = input("Ingresa la URL pública de la web (o presiona ENTER para usar localhost por ahora): ").strip()
     if not dominio:
