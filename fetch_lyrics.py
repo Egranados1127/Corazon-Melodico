@@ -39,12 +39,27 @@ def fetch_and_save_lyrics():
         titulo = song['title']
         artista = song['artist']
         
-        print(f"🎵 Buscando: {titulo} - {artista}...")
+        import re
         
-        params = {"track_name": titulo, "artist_name": artista}
+        # Limpieza intensiva de título para evadir el rechazo de la API
+        # Ej: "La Culpa (Remastered 2004) - En vivo" -> "La Culpa"
+        clean_title = re.sub(r'\s*[\(\[].*?[\)\]]', '', titulo)
+        clean_title = re.split(r'\s-\s', clean_title)[0]
+        clean_title = clean_title.strip()
+        
+        print(f"🎵 Buscando: {titulo} -> (Como: '{clean_title}') - {artista}...")
+        
+        # A veces el artista viene dual "Yuri & Leo", probar usar query libre si falla exacto
+        params = {"track_name": clean_title, "artist_name": artista}
         
         try:
             response = requests.get(API_URL, params=params)
+            
+            # Si falla la búsqueda estricta, intentamos una búsqueda abierta (texto completo)
+            if response.status_code == 200 and not response.json():
+                params_abiertos = {"q": f"{clean_title} {artista}"}
+                response = requests.get(API_URL, params=params_abiertos)
+            
             if response.status_code == 200:
                 data = response.json()
                 if data and len(data) > 0:
