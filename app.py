@@ -41,6 +41,11 @@ query_params = st.query_params
 url_bar_id = query_params.get("bar", None)
 mesa_param = query_params.get("mesa", None)
 
+# 🚦 PROTECCIÓN MÁXIMA DE QRs FÍSICOS (Evitar pérdida de acrílicos impresos)
+# Si un QR físico dirige a ?bar=1, el sistema lo traduce silenciosamente al identificador corporativo "bar_1"
+if url_bar_id and not url_bar_id.startswith("bar_"):
+    url_bar_id = f"bar_{url_bar_id}"
+
 
 def logout():
     for key in list(st.session_state.keys()):
