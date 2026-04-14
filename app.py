@@ -330,8 +330,8 @@ if mesa_param and url_bar_id:
                         "<div style='height: 15px;'></div>", unsafe_allow_html=True
                     )
 
-                    def handle_pedir(b, s, m):
-                        add_request(b, s, m)
+                    def handle_pedir(bar_id_param, song_id_param, mesa_id_param):
+                        add_request(bar_id_param, song_id_param, mesa_id_param)
                         st.session_state.text_search = ""
                         st.session_state.artist_filter = "Explorar Artista..."
                         st.session_state.voice_memory = ""
