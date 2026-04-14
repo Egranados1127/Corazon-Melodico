@@ -4,3 +4,4 @@ supabase
 python-dotenv
 streamlit-mic-recorder
 numpy
+scikit-learn
