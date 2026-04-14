@@ -212,16 +212,16 @@ if mesa_param and url_bar_id:
                     """, unsafe_allow_html=True)
                 with cols[1]:
                     st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
-                    if st.button("Pedir ✨", key=f"req_{row['id']}", use_container_width=True):
-                        add_request(url_bar_id, row['id'], mesa_id)
-                        st.balloons()
+                    def handle_pedir(b, s, m):
+                        add_request(b, s, m)
                         st.session_state.text_search = ""
                         st.session_state.artist_filter = "Explorar Artista..."
                         st.session_state.voice_memory = ""
                         if "stt_key" in st.session_state:
                             st.session_state.stt_key += "X"
-                        time.sleep(1.5)
-                        st.rerun()
+                        
+                    if st.button("Pedir ✨", key=f"req_{row['id']}", use_container_width=True, on_click=handle_pedir, args=(url_bar_id, row['id'], mesa_id)):
+                        st.balloons()
                 st.markdown("<br>", unsafe_allow_html=True)
 
     st.divider()
